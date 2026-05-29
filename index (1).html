@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Suman ka Din 🎂">
+  <meta name="theme-color" content="#ffb6c1">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/images/icon.png">
+  <title>Happy Birthday Suman 🎂</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Floating Petals (always visible bg) -->
+<div class="petals-bg" id="petalsBg">
+  <div class="petal" style="--i:1"></div>
+  <div class="petal" style="--i:2"></div>
+  <div class="petal" style="--i:3"></div>
+  <div class="petal" style="--i:4"></div>
+  <div class="petal" style="--i:5"></div>
+  <div class="petal" style="--i:6"></div>
+  <div class="petal" style="--i:7"></div>
+  <div class="petal" style="--i:8"></div>
+</div>
+
+<!-- ── STAGE 0: SPLASH ───────────────────────── -->
+<div class="stage safe-zone" id="stage0">
+  <div class="stage-content stage0-content">
+    <div class="splash-flower">🌸</div>
+    <h1 class="splash-title">Kuch special<br><em>tere liye hai...</em></h1>
+    <p class="splash-sub">Ek baar tap kar — bas ek baar 🤫</p>
+    <button class="cta-btn no-tap-advance" id="splashBtn">Tap kar Suman 👇</button>
+    <div class="shimmer-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</div>
+
+<!-- ── STAGE 1: ARRIVAL ──────────────────────── -->
+<div class="stage safe-zone hidden" id="stage1">
+  <div class="stage-content stage1-content">
+    <div class="hero-img-wrap">
+      <img class="hero-img" data-src="assets/images/hero1.jpg" src="" alt="Hero photo" id="heroImg">
+      <div class="img-glow"></div>
+    </div>
+    <h2 class="stage1-heading" id="stage1Heading"></h2>
+    <p class="stage1-sub hidden" id="stage1Sub">Tu soch rahi hogi —<br>yeh kya tamasha hai 😂</p>
+    <div class="tap-hint hidden" id="stage1Hint">Aage dekh →</div>
+  </div>
+</div>
+
+<!-- ── STAGE 2: MESSAGE ──────────────────────── -->
+<div class="stage safe-zone hidden" id="stage2">
+  <div class="chat-screen">
+    <div class="chat-header">
+      <div class="avatar-circle">SR</div>
+      <div class="chat-info">
+        <span class="chat-name">Samar Raj</span>
+        <span class="chat-status" id="chatStatus">online</span>
+      </div>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="typing-indicator hidden" id="typingIndicator">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+      <div class="bubble hidden" id="bubble1">Okay sun,<br>main chahta tha ki kuch normal karu tere liye.<br><br>Par tu jaanti hai na mujhe —<br>normal mujhse hota nahi 😂<br><br>Toh bas... ek poora website bana diya.<br>Kyunki tu iska haqdar hai. Obviously. 🙄✨</div>
+      <div class="bubble hidden" id="bubble2">Aur honestly?<br>Tujhe khush dekhna hi meri<br>sabse badi achievement hai.<br><br>Happy Birthday Suman. 🎂💕</div>
+    </div>
+  </div>
+  <div class="tap-hint hidden" id="stage2Hint">Aage dekh →</div>
+</div>
+
+<!-- ── STAGE 3: MEMORIES ─────────────────────── -->
+<div class="stage safe-zone hidden" id="stage3">
+  <div class="stage3-scroll">
+    <h2 class="section-title">Hum, but make it cinematic 🎬</h2>
+
+    <!-- 3A: Polaroid Stack -->
+    <div class="memories-block">
+      <p class="memories-label">Swipe karo 👆</p>
+      <div class="polaroid-stack" id="polaroidStack">
+        <div class="polaroid" data-idx="0">
+          <img data-src="assets/images/polaroid1.jpg" src="" alt="Memory 1">
+          <span class="polaroid-caption">Yeh din yaad hai? 😂</span>
+        </div>
+        <div class="polaroid" data-idx="1">
+          <img data-src="assets/images/polaroid2.jpg" src="" alt="Memory 2">
+          <span class="polaroid-caption">Main toh abhi bhi shocked hoon</span>
+        </div>
+        <div class="polaroid" data-idx="2">
+          <img data-src="assets/images/polaroid3.jpg" src="" alt="Memory 3">
+          <span class="polaroid-caption">Evidence delete karna tha humein 💀</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3B: Flip Cards -->
+    <div class="memories-block">
+      <p class="memories-label">Tap karo flip karne ke liye 🃏</p>
+      <div class="flip-grid">
+        <div class="flip-card" data-idx="0">
+          <div class="flip-inner">
+            <div class="flip-front"><img data-src="assets/images/flip1.jpg" src="" alt="Flip 1"></div>
+            <div class="flip-back"><p>Yeh photo? Crime scene hai.&#10;Par hum acche lagte hain. 😎</p></div>
+          </div>
+        </div>
+        <div class="flip-card" data-idx="1">
+          <div class="flip-inner">
+            <div class="flip-front"><img data-src="assets/images/flip2.jpg" src="" alt="Flip 2"></div>
+            <div class="flip-back"><p>Itni achi photo kaise aayi —&#10;investigation pending hai 🔍</p></div>
+          </div>
+        </div>
+        <div class="flip-card" data-idx="2">
+          <div class="flip-inner">
+            <div class="flip-front"><img data-src="assets/images/flip3.jpg" src="" alt="Flip 3"></div>
+            <div class="flip-back"><p>Core memory. Delete nahi&#10;hogi kabhi. 💕</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3C: Glow Carousel -->
+    <div class="memories-block">
+      <p class="memories-label">Swipe → aur ← 📸</p>
+      <div class="carousel-wrap" id="carouselWrap">
+        <div class="carousel-track" id="carouselTrack">
+          <div class="carousel-item" data-ci="0">
+            <img data-src="assets/images/carousel1.jpg" src="" alt="Carousel 1">
+          </div>
+          <div class="carousel-item active" data-ci="1">
+            <img data-src="assets/images/carousel2.jpg" src="" alt="Carousel 2">
+          </div>
+          <div class="carousel-item" data-ci="2">
+            <img data-src="assets/images/carousel3.jpg" src="" alt="Carousel 3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tap-hint" id="stage3Hint" style="margin:20px auto 30px;">Aage dekh →</div>
+  </div>
+</div>
+
+<!-- ── STAGE 4: DIARY ────────────────────────── -->
+<div class="stage safe-zone hidden" id="stage4">
+  <div class="stage4-overlay">
+    <div class="diary-container" id="diaryContainer">
+      <div class="diary" id="diaryBook">
+        <div class="diary-lock">🔐</div>
+        <div class="diary-lines">
+          <div></div><div></div><div></div>
+        </div>
+      </div>
+      <p class="diary-text">Yeh sirf tere liye hai, Suman... 🔐</p>
+      <p class="diary-hint">Tap karke open karo 👆</p>
+    </div>
+    <div class="reasons-list hidden" id="reasonsList">
+      <h3 class="reasons-title">5 Reasons — sirf tere liye 💕</h3>
+      <div class="reason-item">
+        <span class="reason-emoji">✨</span>
+        <span class="reason-text">Tu exist karti hai — yahi kaafi hai</span>
+      </div>
+      <div class="reason-item">
+        <span class="reason-emoji">🔥</span>
+        <span class="reason-text">Teri energy match karna impossible hai</span>
+      </div>
+      <div class="reason-item">
+        <span class="reason-emoji">💕</span>
+        <span class="reason-text">Tera roast bhi pyaar lagta hai</span>
+      </div>
+      <div class="reason-item">
+        <span class="reason-emoji">😂</span>
+        <span class="reason-text">Tu drama queen hai — par OUR drama queen hai</span>
+      </div>
+      <div class="reason-item">
+        <span class="reason-emoji">🌸</span>
+        <span class="reason-text">Tere jaisi doosri nahi — seriously, try karke dekha</span>
+      </div>
+      <div class="tap-hint" style="margin-top:20px">Aage dekh →</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── STAGE 5: CELEBRATION ──────────────────── -->
+<div class="stage safe-zone hidden" id="stage5">
+  <canvas id="fireworksCanvas"></canvas>
+  <div class="balloons-container" id="balloonsContainer"></div>
+  <div class="name-drop" id="nameDrop">
+    <span class="name-letter" data-l="S">S</span>
+    <span class="name-letter" data-l="U">U</span>
+    <span class="name-letter" data-l="M">M</span>
+    <span class="name-letter" data-l="A">A</span>
+    <span class="name-letter" data-l="N">N</span>
+  </div>
+  <div class="celebration-text hidden" id="celebrationText">HAPPY BIRTHDAY! 🎂</div>
+  <div class="tap-hint hidden" id="stage5Hint" style="margin-top:30px">Ek aur cheez hai... →</div>
+</div>
+
+<!-- ── STAGE 6: FINALE ───────────────────────── -->
+<div class="stage safe-zone hidden" id="stage6">
+  <div class="stage6-content">
+    <div class="final-img-wrap">
+      <img class="hero-img" data-src="assets/images/final.jpg" src="" alt="Final photo" id="finalImg">
+      <div class="img-glow"></div>
+    </div>
+    <p class="final-message" id="finalMessage"></p>
+    <span class="final-sign hidden" id="finalSign">— Samar Raj 💕</span>
+    <button class="replay-btn no-tap-advance hidden" id="replayBtn" onclick="replayAll()">Phir se dekh 🔁</button>
+  </div>
+  <div class="floating-hearts" id="floatingHearts"></div>
+</div>
+
+<!-- ── PERSISTENT UI ─────────────────────────── -->
+<div class="progress-dots" id="progressDots">
+  <div class="dot" data-i="0"></div>
+  <div class="dot" data-i="1"></div>
+  <div class="dot" data-i="2"></div>
+  <div class="dot" data-i="3"></div>
+  <div class="dot" data-i="4"></div>
+  <div class="dot" data-i="5"></div>
+</div>
+
+<button class="mute-btn hidden no-tap-advance" id="muteBtn" onclick="toggleMute()">🔊</button>
+
+<div class="tap-feedback" id="tapFeedback"></div>
+
+<audio id="bgMusic" loop preload="none">
+  <source src="assets/music/lofi.mp3" type="audio/mpeg">
+</audio>
+
+<script src="script.js"></script>
+</body>
+</html>
