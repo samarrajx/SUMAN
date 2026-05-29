@@ -18,6 +18,7 @@ let stage4Unlocked = false;
 let fireworksAnimId = null;
 let fireworksTimeout = null;
 let isTransitioning = false;
+let lastTouchTime = 0; // dedup touch vs click
 
 /* ─── CONTENT ─── */
 const CONTENT = {
@@ -82,24 +83,46 @@ document.addEventListener('DOMContentLoaded', () => {
   initLazyImages();
   updateProgressDots(0);
 
-  // Splash is already active via CSS (z-index 20, opacity 1)
-  document.getElementById('ctaBtn').addEventListener('click', (e) => {
+  /* ── CTA button: touchend fires music (must be in gesture stack) + advances ── */
+  const ctaBtn = document.getElementById('ctaBtn');
+  ctaBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();         // only prevents click ghost on THIS element
     e.stopPropagation();
+    lastTouchTime = Date.now();
+    unlockAudioAndStart();      // play() in direct gesture stack = iOS safe
+    handleFirstTap();
+  }, { passive: false });
+  ctaBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (Date.now() - lastTouchTime < 600) return; // skip ghost click after touch
+    unlockAudioAndStart();
     handleFirstTap();
   });
 
   // Polaroid cycling
-  document.querySelectorAll('.polaroid').forEach((p, i) => {
+  document.querySelectorAll('.polaroid').forEach((p) => {
+    p.addEventListener('touchend', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      lastTouchTime = Date.now();
+      cycleActiveClass(document.querySelectorAll('.polaroid'), p);
+    }, { passive: false });
     p.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (Date.now() - lastTouchTime < 600) return;
       cycleActiveClass(document.querySelectorAll('.polaroid'), p);
     });
   });
 
   // Flip cards
   document.querySelectorAll('.flip-card').forEach(card => {
+    card.addEventListener('touchend', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      lastTouchTime = Date.now();
+      card.classList.toggle('flipped');
+    }, { passive: false });
     card.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (Date.now() - lastTouchTime < 600) return;
       card.classList.toggle('flipped');
     });
   });
@@ -110,37 +133,66 @@ document.addEventListener('DOMContentLoaded', () => {
   // Diary tap
   const diary = document.getElementById('diary');
   if (diary) {
+    diary.addEventListener('touchend', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      lastTouchTime = Date.now();
+      if (!stage4Unlocked) unlockDiary();
+    }, { passive: false });
     diary.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (Date.now() - lastTouchTime < 600) return;
       if (!stage4Unlocked) unlockDiary();
     });
   }
   const diaryOverlay = document.getElementById('diaryOverlay');
   if (diaryOverlay) {
+    diaryOverlay.addEventListener('touchend', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      lastTouchTime = Date.now();
+      if (!stage4Unlocked) unlockDiary();
+    }, { passive: false });
     diaryOverlay.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (Date.now() - lastTouchTime < 600) return;
       if (!stage4Unlocked) unlockDiary();
     });
   }
 
   // Replay
+  document.getElementById('replayBtn').addEventListener('touchend', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    lastTouchTime = Date.now();
+    replayExperience();
+  }, { passive: false });
   document.getElementById('replayBtn').addEventListener('click', (e) => {
     e.stopPropagation();
+    if (Date.now() - lastTouchTime < 600) return;
     replayExperience();
   });
 
   // Mute
+  muteBtn.addEventListener('touchend', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    lastTouchTime = Date.now();
+    toggleMute();
+  }, { passive: false });
   muteBtn.addEventListener('click', (e) => {
     e.stopPropagation();
+    if (Date.now() - lastTouchTime < 600) return;
     toggleMute();
   });
 
-  // Global tap to advance
-  document.addEventListener('click', handleGlobalTap);
+  /* ── Global advance: touchend fires instantly, click deduped ── */
   document.addEventListener('touchend', (e) => {
-    e.preventDefault();
+    if (e.target.closest('.no-tap-advance')) return;
+    lastTouchTime = Date.now();
     handleGlobalTap(e);
-  }, { passive: false });
+  }, { passive: true });          // passive=true — NO preventDefault on document
+
+  document.addEventListener('click', (e) => {
+    if (Date.now() - lastTouchTime < 600) return; // skip ghost click
+    handleGlobalTap(e);
+  });
 });
 
 /* ─── PROGRESS DOTS ─── */
@@ -191,6 +243,7 @@ function handleGlobalTap(e) {
 }
 
 function handleFirstTap() {
+  if (isTransitioning) return;
   showTapFeedback({ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 });
   advanceStage();
 }
@@ -242,7 +295,7 @@ function runStageEntrance(stage) {
 
 /* ─── STAGE 1: THE ARRIVAL ─── */
 function enterStage1() {
-  startMusic();
+  startMusic(); // fallback for desktop (mobile already called unlockAudioAndStart)
   setTimeout(() => { muteBtn.classList.add('visible'); }, 400);
 
   const heroImg = document.getElementById('heroImg');
@@ -698,11 +751,28 @@ function typeWriter(element, text, speed = 45, callback) {
 }
 
 /* ─── AUDIO ─── */
+
+// Must be called directly inside a touchend/click handler for iOS autoplay policy
+function unlockAudioAndStart() {
+  if (musicStarted || !bgMusic) return;
+  bgMusic.volume = 0;
+  bgMusic.load();
+  const p = bgMusic.play();
+  if (p && p.then) {
+    p.then(() => {
+      musicStarted = true;
+      fadeVolume(bgMusic, 0.38, 2000);
+    }).catch(() => {}); // silent fail
+  }
+}
+
+// Fallback for desktop browsers
 async function startMusic() {
   if (musicStarted || !bgMusic) return;
   try {
     bgMusic.volume = 0;
-    await bgMusic.play();
+    const p = bgMusic.play();
+    if (p) await p;
     musicStarted = true;
     fadeVolume(bgMusic, 0.38, 2000);
   } catch (e) { /* Silent fail */ }
